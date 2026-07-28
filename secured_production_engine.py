@@ -5,20 +5,31 @@ import time
 from datetime import datetime
 import os
 
-# Python looks for these in Render's secure vault (or uses fallbacks for local testing)
+# 🔒 SECURE CREDENTIALS
 FCA_EMAIL = os.environ.get("FCA_EMAIL") or "dc@settlementcircle.com"
 FCA_KEY = os.environ.get("FCA_KEY") or "5828c39ebaed901e3695144dcc63e136"
 SLACK_WEBHOOK_URL = os.environ.get("SLACK_WEBHOOK_URL")
 
 TARGET_FRN = "122702" # Barclays Bank PLC
 
+# ==========================================
+# 🧠 THE INTELLIGENCE DICTIONARY
+# ==========================================
+ROLE_MAPPINGS = {
+    "SMF16": {"role": "Compliance Oversight", "buyer": "RegTech & AML", "pitch": "The Compliance seat is transitioning. Prime time to pitch AML/KYC automation or regulatory audits."},
+    "SMF17": {"role": "MLRO", "buyer": "RegTech & AML", "pitch": "The MLRO seat is transitioning. Prime time to pitch AML/KYC automation or transaction monitoring."},
+    "SMF24": {"role": "Chief Operations", "buyer": "Cyber & Cloud", "pitch": "Operations mandate detected. Pitch your cloud/cyber solutions before they lock in their 12-month IT roadmap."},
+    "SMF4":  {"role": "Chief Risk", "buyer": "FinTech & Data", "pitch": "Risk leadership is changing. Massive trigger for new risk modeling software and reporting dashboards."},
+    "SMF3":  {"role": "Executive Director", "buyer": "WealthTech & CRM", "pitch": "Director departure detected. High probability they are launching a new boutique. Pitch Wealth CRM."},
+    "SMF1":  {"role": "Chief Executive", "buyer": "Enterprise ERP", "pitch": "CEO transition. Expect a massive budget unlock as they audit the firm's strategic direction."},
+    "SMF2":  {"role": "Chief Finance", "buyer": "Enterprise ERP", "pitch": "CFO transition. Prime opportunity to pitch financial planning tools or cost-saving infrastructure."},
+    "CF30":  {"role": "Customer Function", "buyer": "Recruiters & Tech", "pitch": "Top producer movement. Track where they land for immediate software seat expansion."}
+}
+
 def setup_database():
-    """Upgraded database schema to track individual executives instead of firms."""
     print("⚙️ Connecting to local database (live_smf_watch.db)...")
     conn = sqlite3.connect('live_smf_watch.db')
     cursor = conn.cursor()
-    
-    # We now track by IRN (Individual Reference Number)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS tracked_executives (
             irn TEXT PRIMARY KEY,
@@ -33,16 +44,13 @@ def setup_database():
     return conn
 
 def fetch_executive_roster():
-    """Extracts all regulated individuals and makes secondary calls to get their specific SMF roles."""
     print(f"🌐 Fetching live Directory Persons roster for FRN: {TARGET_FRN}...")
-    
     headers = {
         'X-Auth-Email': FCA_EMAIL,
         'X-Auth-Key': FCA_KEY,
         'Content-Type': 'application/json'
     }
     
-    # Step 1: Get the list of all individuals at the firm
     roster_url = f"https://register.fca.org.uk/services/V0.1/Firm/{TARGET_FRN}/Individuals"
     response = requests.get(roster_url, headers=headers)
     
@@ -55,7 +63,6 @@ def fetch_executive_roster():
     
     today_roster = {}
     
-    # Step 2: Loop through them to get their specific roles
     for person in raw_individuals:
         irn = person.get('IRN')
         name = person.get('Name')
@@ -63,7 +70,6 @@ def fetch_executive_roster():
         if not irn or irn == 'N/A':
             continue
             
-        # We skip the main profile and jump straight to the /CF endpoint to save time!
         cf_url = f"https://register.fca.org.uk/services/V0.1/Individuals/{irn}/CF"
         
         try:
@@ -71,28 +77,29 @@ def fetch_executive_roster():
             if cf_response.status_code == 200:
                 cf_data = cf_response.json().get('Data')
                 
-                # If they have active roles, extract the first one
                 if cf_data and len(cf_data) > 0:
                     current_roles = cf_data[0].get('Current', {})
-                    
                     if current_roles:
-                        # Grab the first role available in the dictionary
                         first_role_key = list(current_roles.keys())[0] 
                         role_details = current_roles[first_role_key]
                         
                         raw_role_name = role_details.get('Name', '')
                         firm_name = role_details.get('Firm Name', 'Unknown Firm')
-                        function_code = raw_role_name.split(' ')[0] # turns "SMF2 Chief..." into "SMF2"
                         
-                        # Save them to our daily roster dictionary
-                        today_roster[irn] = {
-                            "name": name,
-                            "firm_name": firm_name,
-                            "function_code": function_code,
-                            "full_title": raw_role_name
-                        }
+                        # Clean the code (e.g. extracts "SMF2" from "(1)SMF2 Chief Finance")
+                        raw_code = raw_role_name.split(' ')[0]
+                        function_code = raw_code.replace('(1)', '').replace('(2)', '') 
+                        
+                        # NOISE FILTER: Only track actual regulatory codes
+                        if function_code.startswith('SMF') or function_code.startswith('CF'):
+                            today_roster[irn] = {
+                                "name": name,
+                                "firm_name": firm_name,
+                                "function_code": function_code,
+                                "full_title": raw_role_name
+                            }
             
-            # 🚦 Crucial: Be polite to government servers so we don't get blocked
+            # Be polite to government servers
             time.sleep(0.3)
             
         except Exception as e:
@@ -101,12 +108,16 @@ def fetch_executive_roster():
     return today_roster
 
 def send_slack_alert(irn, name, firm_name, function_code, full_title, event_type):
-    """Fires a specialized Slack message for executive departures."""
+    # Lookup the intelligence for this specific code
+    intel = ROLE_MAPPINGS.get(function_code, {
+        "buyer": "General Sales", 
+        "pitch": "Executive transition detected. Research this role for potential budget unlock."
+    })
     
     if event_type == "DEPARTURE":
         title_text = "🚨 LEAD ALERT: SMF Departure Detected"
         color = "#e11d48" # Red
-        action_text = f"The {function_code} seat is now vacant or transitioning. Prime time to pitch!"
+        action_text = intel["pitch"]
     else:
         title_text = "✨ LEAD ALERT: New SMF Appointed"
         color = "#10b981" # Green
@@ -129,7 +140,7 @@ def send_slack_alert(irn, name, firm_name, function_code, full_title, event_type
                         "type": "section",
                         "text": {
                             "type": "mrkdwn",
-                            "text": f"*Firm:* {firm_name} (FRN: {TARGET_FRN})\n*Executive:* {name} (IRN: {irn})\n*Function Code:* {function_code}\n*Full Title:* {full_title}"
+                            "text": f"*Firm:* {firm_name} (FRN: {TARGET_FRN})\n*Executive:* {name} (IRN: {irn})\n*Role:* {function_code} - {intel.get('role', full_title)}\n*Target Buyer:* {intel['buyer']}"
                         }
                     },
                     {
@@ -137,7 +148,7 @@ def send_slack_alert(irn, name, firm_name, function_code, full_title, event_type
                         "elements": [
                             {
                                 "type": "mrkdwn",
-                                "text": f"⚡ *SMF Watch Signal* | {action_text}"
+                                "text": f"⚡ *SMF Watch Insight* | {action_text}"
                             }
                         ]
                     }
@@ -152,9 +163,9 @@ def send_slack_alert(irn, name, firm_name, function_code, full_title, event_type
             data=json.dumps(slack_payload),
             headers={'Content-Type': 'application/json'}
         )
-        print(f"   -> 📨 Slack alert routed to sales team for {name} ({function_code})!")
+        print(f"   -> 📨 Slack alert routed to {intel['buyer']} team for {name} ({function_code})!")
     else:
-        print("   -> ⚠️ Skipping Slack alert: Webhook URL not set in environment.")
+        print("   -> ⚠️ Skipping Slack alert: Webhook URL not set.")
 
 def run_production_engine():
     print("\n" + "="*50)
@@ -164,34 +175,19 @@ def run_production_engine():
     conn = setup_database()
     cursor = conn.cursor()
 
-    # 1. Fetch Yesterday's Roster from the Database
     cursor.execute("SELECT irn, name, firm_name, function_code, full_title FROM tracked_executives")
-    db_records = cursor.fetchall()
-    
-    yesterday_db = {}
-    for row in db_records:
-        irn, name, firm_name, function_code, full_title = row
-        yesterday_db[irn] = {
-            "name": name,
-            "firm_name": firm_name,
-            "function_code": function_code,
-            "full_title": full_title
-        }
+    yesterday_db = {row[0]: {"name": row[1], "firm_name": row[2], "function_code": row[3], "full_title": row[4]} for row in cursor.fetchall()}
 
-    print(f"📊 Memory: Found {len(yesterday_db)} executives tracked in database.")
+    print(f"📊 Memory: Found {len(yesterday_db)} valid executives tracked in database.")
 
-    # 2. Fetch Today's Roster from the API
     today_api_data = fetch_executive_roster()
-    print(f"📥 Live: Pulled {len(today_api_data)} active executives with SMF roles.")
+    print(f"📥 Live: Pulled {len(today_api_data)} active executives with verified SMF/CF roles.")
 
-    # 3. THE DELTA ENGINE
     print("⚡ Running executive delta comparison...")
-    
     new_additions = 0
     departures = 0
     today_date = datetime.now().strftime('%Y-%m-%d')
 
-    # Check for NEW hires (In today's API, but not in yesterday's DB)
     for irn, current_record in today_api_data.items():
         if irn not in yesterday_db:
             print(f"✨ NEW APPOINTMENT: {current_record['name']} joined as {current_record['function_code']}")
@@ -203,19 +199,12 @@ def run_production_engine():
             ''', (irn, current_record['name'], current_record['firm_name'], current_record['function_code'], current_record['full_title'], today_date))
             new_additions += 1
         else:
-            # They are still there, just update the 'last_checked' date
-            cursor.execute('''
-                UPDATE tracked_executives 
-                SET last_checked = ? WHERE irn = ?
-            ''', (today_date, irn))
+            cursor.execute('UPDATE tracked_executives SET last_checked = ? WHERE irn = ?', (today_date, irn))
 
-    # Check for DEPARTURES (In yesterday's DB, but missing from today's API!)
     for irn, past_record in yesterday_db.items():
         if irn not in today_api_data:
             print(f"🚨 DEPARTURE TRIGGER: {past_record['name']} ({past_record['function_code']}) left the firm!")
             send_slack_alert(irn, past_record['name'], past_record['firm_name'], past_record['function_code'], past_record['full_title'], "DEPARTURE")
-            
-            # Remove them from our active tracking database so we don't alert again tomorrow
             cursor.execute('DELETE FROM tracked_executives WHERE irn = ?', (irn,))
             departures += 1
 
