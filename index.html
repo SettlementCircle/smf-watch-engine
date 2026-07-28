@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SMF Watch | Real-Time FCA Leadership Alerts</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -31,88 +29,71 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .slack-card {
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900 antialiased selection:bg-blue-200">
+<body class="bg-gray-50 text-gray-900 antialiased">
 
-    <nav class="w-full bg-white/80 backdrop-blur-md border-b border-slate-200 fixed top-0 z-50 transition-all">
+    <nav class="w-full bg-white border-b border-gray-200 fixed top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
                 <div class="flex-shrink-0 flex items-center gap-2">
-                    <div class="w-8 h-8 bg-primary rounded flex items-center justify-center shadow-sm">
+                    <div class="w-8 h-8 bg-primary rounded flex items-center justify-center">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                     </div>
                     <span class="font-bold text-xl tracking-tight text-primary">SMF Watch</span>
                 </div>
                 <div>
-                    <a href="#pricing" class="bg-primary hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg text-sm sm:text-base">Start Tracking</a>
+                    <a href="#pricing" class="bg-primary hover:bg-slate-800 text-white px-5 py-2 rounded-md font-medium transition-colors duration-200">Get Started</a>
                 </div>
             </div>
         </div>
     </nav>
 
-    <main class="pt-28 pb-16 lg:pt-36 lg:pb-24 overflow-hidden relative">
-        <!-- Background decorative blobs -->
-        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] opacity-20 pointer-events-none">
-            <div class="absolute top-10 left-10 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
-            <div class="absolute top-0 right-10 w-72 h-72 bg-emerald-400 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
-        </div>
-
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="text-center max-w-4xl mx-auto">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-secondary text-sm font-semibold mb-6 border border-blue-100 shadow-sm">
+    <main class="pt-24 pb-16 lg:pt-32 lg:pb-24 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+            <div class="text-center max-w-3xl mx-auto">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-secondary text-sm font-semibold mb-6 border border-blue-100">
                     <span class="flex h-2 w-2 relative">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
                     </span>
-                    Live sync with the FCA Register
+                    Daily sync with the FCA Register
                 </div>
-                
-                <h1 class="text-4xl md:text-5xl lg:text-7xl font-extrabold tracking-tight text-primary mb-6 leading-tight">
-                    Know the exact moment a <br class="hidden md:block" /> <span class="gradient-text">decision-maker</span> leaves.
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-primary mb-6">
+                    Know the exact day a <span class="gradient-text">decision-maker</span> joins or leaves.
                 </h1>
-                
-                <p class="text-lg md:text-xl text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed">
-                    We monitor the UK Financial Conduct Authority daily for executive SMF changes. Get actionable sales triggers pushed directly to your Slack or Inbox.
+                <p class="text-lg md:text-xl text-gray-600 mb-10 leading-relaxed">
+                    We monitor the FCA Register daily for Senior Management Function (SMF) changes at UK mid-market firms. Get morning alerts pushed directly to your Slack channel when key executives step down or take charge.
                 </p>
                 
                 <div class="flex flex-col sm:flex-row justify-center gap-4 mb-16">
-                    <a href="#pricing" class="bg-secondary hover:bg-blue-600 text-white px-8 py-3.5 rounded-lg font-semibold text-lg transition-all shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 flex items-center justify-center gap-2">
-                        Get Your Slack Webhook
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-                    </a>
+                    <a href="#pricing" class="bg-secondary hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold text-lg transition-colors shadow-lg shadow-blue-500/30">Start Tracking Leads</a>
+                    <a href="#how-it-works" class="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 px-8 py-3 rounded-lg font-semibold text-lg transition-colors">See How it Works</a>
                 </div>
 
                 <!-- Mock Slack Alert -->
-                <div class="max-w-xl mx-auto bg-white rounded-xl border border-slate-200 overflow-hidden text-left transform md:-rotate-1 md:hover:rotate-0 transition-transform duration-300 slack-card">
-                    <div class="bg-slate-50 border-b border-slate-200 px-4 py-2.5 flex items-center gap-2">
+                <div class="max-w-lg mx-auto bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden text-left transform rotate-1 hover:rotate-0 transition-transform duration-300">
+                    <div class="bg-slate-50 border-b border-gray-200 px-4 py-2 flex items-center gap-2">
                         <div class="w-3 h-3 rounded-full bg-red-400"></div>
                         <div class="w-3 h-3 rounded-full bg-amber-400"></div>
-                        <div class="w-3 h-3 rounded-full bg-emerald-400"></div>
-                        <span class="text-xs font-medium text-slate-500 ml-2">#sales-triggers</span>
+                        <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                        <span class="text-xs font-medium text-gray-500 ml-2">#sales-triggers</span>
                     </div>
-                    <div class="p-5 sm:p-6 flex gap-4">
-                        <div class="w-10 h-10 rounded bg-blue-50 flex items-center justify-center flex-shrink-0 mt-1 border border-blue-100">
+                    <div class="p-5 flex gap-4">
+                        <div class="w-10 h-10 rounded bg-blue-100 flex items-center justify-center flex-shrink-0 mt-1">
                             <span class="text-xl">🚨</span>
                         </div>
-                        <div class="w-full">
-                            <p class="font-bold text-slate-900 text-sm mb-1">SMF Watch <span class="bg-slate-200 text-slate-600 text-[10px] uppercase px-1.5 py-0.5 rounded ml-1">Bot</span> <span class="text-xs font-normal text-slate-400 ml-2">Today at 9:00 AM</span></p>
-                            <div class="bg-slate-50 rounded-lg p-4 border border-slate-200 mt-2">
-                                <p class="text-sm font-semibold text-slate-800 mb-3 flex items-center gap-2">
-                                    <span class="w-2 h-2 rounded-full bg-red-500"></span> 
-                                    Leadership Departure Detected
-                                </p>
-                                <div class="space-y-1.5 mb-4">
-                                    <p class="text-sm text-slate-600"><strong class="text-slate-800">Firm:</strong> ClearBank Ltd (FRN: 754568)</p>
-                                    <p class="text-sm text-slate-600"><strong class="text-slate-800">Executive:</strong> Jane Doe (IRN: JXD12345)</p>
-                                    <p class="text-sm text-slate-600"><strong class="text-slate-800">Role Ended:</strong> SMF17 - Money Laundering Reporting</p>
-                                </div>
-                                <div class="text-xs text-emerald-800 font-medium bg-emerald-50 border border-emerald-100 p-2.5 rounded flex gap-2 items-start">
-                                    <svg class="w-4 h-4 mt-0.5 flex-shrink-0 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                                    <span><strong>Action for AML Sales:</strong> Pitch screening automation platform to the incoming interim MLRO before the budget is locked.</span>
+                        <div>
+                            <p class="font-bold text-gray-900 text-sm mb-1">SMF Watch Bot <span class="text-xs font-normal text-gray-500 ml-2">Today at 9:00 AM</span></p>
+                            <div class="bg-slate-50 rounded-lg p-3 border border-slate-200 mt-2">
+                                <p class="text-sm text-gray-800 mb-2"><strong>Leadership Departure Detected</strong></p>
+                                <ul class="text-sm text-gray-600 space-y-1">
+                                    <li><strong>Firm:</strong> ClearBank Ltd (FRN: 754568)</li>
+                                    <li><strong>Individual:</strong> Jane Doe</li>
+                                    <li><strong>Role Ended:</strong> SMF17 (MLRO)</li>
+                                </ul>
+                                <div class="mt-3 text-xs text-secondary font-medium bg-blue-50 inline-block px-2 py-1 rounded">
+                                    Opportunity: Pitch AML/KYC platform to incoming interim MLRO.
                                 </div>
                             </div>
                         </div>
@@ -122,136 +103,119 @@
         </div>
     </main>
 
-    <section id="how-it-works" class="py-20 bg-white border-t border-slate-100">
+    <section id="how-it-works" class="py-20 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
-                <h2 class="text-3xl font-bold text-primary">Zero Dashboards. Just Warm Leads.</h2>
-                <p class="mt-4 text-slate-600 max-w-2xl mx-auto text-lg">We do the heavy lifting of parsing messy regulatory data. You just connect your Slack channel and wait for the deals to come to you.</p>
+                <h2 class="text-3xl font-bold text-primary">Zero Setup. Just Warm Leads.</h2>
+                <p class="mt-4 text-gray-600 max-w-2xl mx-auto">No dashboards to log into. No complex integrations. We do the heavy lifting of parsing regulatory data and deliver actionable intelligence straight to where you work.</p>
             </div>
 
-            <div class="grid md:grid-cols-3 gap-8 relative">
-                <!-- Connecting Line (Desktop only) -->
-                <div class="hidden md:block absolute top-12 left-1/6 right-1/6 h-0.5 bg-slate-100 z-0"></div>
-
-                <div class="bg-white rounded-2xl p-8 border border-slate-200 text-center relative z-10 shadow-sm hover:shadow-md transition-shadow">
-                    <div class="w-16 h-16 bg-blue-50 border border-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6 text-secondary text-2xl font-bold shadow-sm">1</div>
-                    <h3 class="text-xl font-semibold text-slate-900 mb-3">Subscribe</h3>
-                    <p class="text-slate-600 text-sm leading-relaxed">Sign up via Stripe. You'll instantly receive a configuration form to set up your delivery preferences.</p>
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Step 1 -->
+                <div class="bg-gray-50 rounded-2xl p-8 border border-gray-100 text-center">
+                    <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 text-secondary text-2xl font-bold">1</div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Subscribe</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">Sign up via Stripe. You'll instantly receive a configuration form to set up your delivery preferences.</p>
                 </div>
-                
-                <div class="bg-white rounded-2xl p-8 border border-slate-200 text-center relative z-10 shadow-sm hover:shadow-md transition-shadow">
-                    <div class="w-16 h-16 bg-blue-50 border border-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6 text-secondary text-2xl font-bold shadow-sm">2</div>
-                    <h3 class="text-xl font-semibold text-slate-900 mb-3">Set Your Filters</h3>
-                    <p class="text-slate-600 text-sm leading-relaxed">Choose the roles you sell to. Select SMF16/17 for Compliance, SMF24 for Operations, or track specific target accounts.</p>
+                <!-- Step 2 -->
+                <div class="bg-gray-50 rounded-2xl p-8 border border-gray-100 text-center">
+                    <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 text-secondary text-2xl font-bold">2</div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Select Your Targets</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">Choose exactly which roles you care about. Select SMF16/17 for Compliance, SMF24 for Operations, or SMF4 for Risk.</p>
                 </div>
-                
-                <div class="bg-white rounded-2xl p-8 border border-slate-200 text-center relative z-10 shadow-sm hover:shadow-md transition-shadow">
-                    <div class="w-16 h-16 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-6 text-accent text-2xl font-bold shadow-sm">3</div>
-                    <h3 class="text-xl font-semibold text-slate-900 mb-3">Close Deals</h3>
-                    <p class="text-slate-600 text-sm leading-relaxed">Receive perfectly formatted alerts in your Slack, Teams, or Email the moment the FCA logs a transition.</p>
+                <!-- Step 3 -->
+                <div class="bg-gray-50 rounded-2xl p-8 border border-gray-100 text-center">
+                    <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 text-secondary text-2xl font-bold">3</div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Close Deals</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">Wake up to highly formatted lead alerts in your Slack channel the morning after a transition is recorded.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="py-24 bg-primary text-white relative overflow-hidden">
-        <!-- Abstract shape -->
-        <div class="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-slate-800 rounded-full opacity-50 blur-3xl"></div>
-
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <section class="py-20 bg-slate-900 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid lg:grid-cols-2 gap-16 items-center">
                 <div>
-                    <h2 class="text-3xl md:text-4xl font-bold mb-6">Built for B2B Sales Teams</h2>
-                    <p class="text-slate-300 mb-10 text-lg leading-relaxed">When an executive leaves, they rip out old software and buy new tools. We map FCA function codes directly to your sales pipeline.</p>
+                    <h2 class="text-3xl font-bold mb-6">Built for B2B Sales Teams</h2>
+                    <p class="text-slate-300 mb-8 leading-relaxed">When a new executive takes charge, they audit the old software and bring their preferred tech stack with them. We map FCA function codes directly to your sales pipeline.</p>
                     
-                    <div class="space-y-8">
-                        <div class="flex gap-5">
-                            <div class="w-10 h-10 rounded-lg bg-slate-800/50 border border-slate-700 flex items-center justify-center flex-shrink-0 text-accent font-bold">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
+                    <div class="space-y-6">
+                        <div class="flex gap-4">
+                            <div class="w-8 h-8 rounded bg-slate-800 flex items-center justify-center flex-shrink-0 text-accent font-bold">✓</div>
                             <div>
-                                <h4 class="font-semibold text-lg text-white mb-1">AML & RegTech Vendors</h4>
-                                <p class="text-sm text-slate-400 leading-relaxed">Track SMF16 & SMF17 changes to pitch screening tools to new MLROs while budgets are open.</p>
+                                <h4 class="font-semibold text-lg text-white">AML & RegTech Vendors</h4>
+                                <p class="text-sm text-slate-400">Track SMF16 & SMF17 changes to pitch screening tools to new MLROs.</p>
                             </div>
                         </div>
-                        <div class="flex gap-5">
-                            <div class="w-10 h-10 rounded-lg bg-slate-800/50 border border-slate-700 flex items-center justify-center flex-shrink-0 text-accent font-bold">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
+                        <div class="flex gap-4">
+                            <div class="w-8 h-8 rounded bg-slate-800 flex items-center justify-center flex-shrink-0 text-accent font-bold">✓</div>
                             <div>
-                                <h4 class="font-semibold text-lg text-white mb-1">Cybersecurity & Cloud</h4>
-                                <p class="text-sm text-slate-400 leading-relaxed">Track SMF24 (Operations) to target infrastructure modernization budgets under new leadership.</p>
+                                <h4 class="font-semibold text-lg text-white">Cybersecurity & Cloud</h4>
+                                <p class="text-sm text-slate-400">Track SMF24 (Operations) to target infrastructure modernization budgets.</p>
                             </div>
                         </div>
-                        <div class="flex gap-5">
-                            <div class="w-10 h-10 rounded-lg bg-slate-800/50 border border-slate-700 flex items-center justify-center flex-shrink-0 text-accent font-bold">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
+                        <div class="flex gap-4">
+                            <div class="w-8 h-8 rounded bg-slate-800 flex items-center justify-center flex-shrink-0 text-accent font-bold">✓</div>
                             <div>
-                                <h4 class="font-semibold text-lg text-white mb-1">WealthTech & CRMs</h4>
-                                <p class="text-sm text-slate-400 leading-relaxed">Track SMF3 (Partners) to catch top producers leaving to start independent boutique firms.</p>
+                                <h4 class="font-semibold text-lg text-white">WealthTech & CRMs</h4>
+                                <p class="text-sm text-slate-400">Track SMF3 (Partners) to catch top producers leaving to start independent boutiques.</p>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Pricing Card -->
-                <div id="pricing" class="bg-white rounded-2xl p-8 shadow-2xl relative text-slate-900 border border-slate-200">
-                    <div class="absolute top-0 right-0 -mt-4 mr-4 bg-gradient-to-r from-blue-500 to-emerald-500 text-white text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wide shadow-lg">
-                        Early Access
-                    </div>
-                    <h3 class="text-2xl font-bold text-slate-900 mb-2">Live Data Feed</h3>
-                    <p class="text-slate-500 text-sm mb-6">Everything you need to feed your outbound engine.</p>
+                <div id="pricing" class="bg-white rounded-2xl p-8 shadow-2xl relative">
+                    <div class="absolute top-0 right-0 -mt-4 mr-4 bg-accent text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">Flat Rate</div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Data Feed</h3>
+                    <p class="text-gray-500 text-sm mb-6">Everything you need to feed your sales pipeline.</p>
                     
                     <div class="flex items-baseline gap-2 mb-8">
-                        <span class="text-5xl font-extrabold text-slate-900">£199</span>
-                        <span class="text-slate-500 font-medium">/ month</span>
+                        <span class="text-5xl font-extrabold text-gray-900">£199</span>
+                        <span class="text-gray-500 font-medium">/ user / month</span>
                     </div>
 
-                    <ul class="space-y-4 mb-8 text-slate-700">
-                        <li class="flex items-start gap-3">
-                            <svg class="w-5 h-5 text-accent flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            <span><strong>Unlimited</strong> daily FCA API checks against your target list</span>
+                    <ul class="space-y-4 mb-8 text-gray-700">
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-accent flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Automated Daily FCA API Checks
                         </li>
-                        <li class="flex items-start gap-3">
-                            <svg class="w-5 h-5 text-accent flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            <span>Filter by specific <strong>SMF & CF</strong> function codes</span>
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-accent flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            All SMF/CF Function Codes Included
                         </li>
-                        <li class="flex items-start gap-3">
-                            <svg class="w-5 h-5 text-accent flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            <span>Direct webhooks into <strong>Slack or Teams</strong></span>
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-accent flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Direct Slack Integration
                         </li>
-                        <li class="flex items-start gap-3">
-                            <svg class="w-5 h-5 text-slate-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            <span>Pause or cancel anytime via Stripe</span>
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-accent flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Cancel anytime via Stripe
                         </li>
                     </ul>
 
-                    <!-- Replace '#' with your actual Stripe Payment Link -->
-                    <button onclick="alert('In production, this will redirect to your Stripe Checkout link!')" class="block w-full text-center bg-primary hover:bg-slate-800 text-white font-semibold py-4 rounded-xl transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
-                        Subscribe via Stripe
-                    </button>
-                    <div class="mt-4 flex items-center justify-center gap-2 text-xs text-slate-400">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1.177-15c-.475 0-.853.385-.853.864v.393H9.42v1.543h.55v1.27c0 1.25.922 2.15 2.188 2.15h1.27v-1.54h-1.076c-.46 0-.814-.34-.814-.794v-1.085h1.89l-.265-1.542h-1.625V7.864c0-.48.378-.864.853-.864h1.02V5.457h-1.393v1.543z"/></svg>
-                        Secure payments processed by Stripe
-                    </div>
+                    <!-- In a real scenario, this href would be a Stripe Payment Link URL -->
+                    <a href="#" class="block w-full text-center bg-primary hover:bg-slate-800 text-white font-semibold py-3 rounded-lg transition-colors">
+                        Subscribe Now
+                    </a>
+                    <p class="text-center text-xs text-gray-400 mt-4">Secure payment processed by Stripe.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <footer class="bg-white py-12 border-t border-slate-200">
+    <footer class="bg-gray-50 py-12 border-t border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-2">
-                <div class="w-6 h-6 bg-slate-200 rounded flex items-center justify-center">
-                    <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                <div class="w-6 h-6 bg-gray-300 rounded flex items-center justify-center">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                 </div>
-                <span class="font-semibold text-slate-700">SMF Watch</span>
+                <span class="font-semibold text-gray-600">SMF Watch Data</span>
             </div>
-            <p class="text-sm text-slate-500 text-center">© 2026 SMF Watch. All rights reserved. <br class="sm:hidden"/> Not affiliated with the UK Financial Conduct Authority.</p>
-            <div class="flex gap-6 text-sm font-medium text-slate-500">
-                <a href="#" class="hover:text-primary transition-colors">Terms</a>
-                <a href="#" class="hover:text-primary transition-colors">Privacy</a>
+            <p class="text-sm text-gray-500">© 2026 SMF Watch. All rights reserved. Not affiliated with the Financial Conduct Authority.</p>
+            <div class="flex gap-4 text-sm text-gray-500">
+                <a href="#" class="hover:text-primary">Terms</a>
+                <a href="#" class="hover:text-primary">Privacy</a>
             </div>
         </div>
     </footer>
