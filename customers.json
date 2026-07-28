@@ -1,0 +1,20 @@
+{
+"acme_cyber_ltd": {
+"company_name": "Acme Cyber Security",
+"slack_webhook_url": "https://hooks.slack.com/services/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",
+"target_frns": ["122702", "754568"],
+"smf_preferences": {
+"SMF24": "🚨 Chief of Operations changed. Pitch our Cloud Security Audit immediately.",
+"SMF2": "🚨 CFO changed. Pitch our cost-saving IT infrastructure to the new leadership."
+}
+},
+"regtech_pro_inc": {
+"company_name": "RegTech Pro Inc",
+"slack_webhook_url": "ANOTHER_SLACK_WEBHOOK_URL_HERE",
+"target_frns": ["ALL"],
+"smf_preferences": {
+"SMF16": "✨ Compliance Oversight shift. Trigger automated sequence pitching AML software.",
+"SMF17": "✨ MLRO vacancy/appointment. Top priority lead for transaction monitoring."
+}
+}
+}
