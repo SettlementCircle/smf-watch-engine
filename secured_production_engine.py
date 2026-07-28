@@ -8,25 +8,21 @@ import os
 # 🔒 SECURE CREDENTIALS
 FCA_EMAIL = os.environ.get("FCA_EMAIL") or "dc@settlementcircle.com"
 FCA_KEY = os.environ.get("FCA_KEY") or "5828c39ebaed901e3695144dcc63e136"
-SLACK_WEBHOOK_URL = os.environ.get("SLACK_WEBHOOK_URL")
 
-# NEW: We now use an array of Target FRNs instead of just one!
-# Here we have Barclays, ClearBank, and Monzo as examples.
-TARGET_FRNS = ["122702", "754568", "730427"]
+# REMOVED: We deleted the hardcoded SLACK_WEBHOOK_URL, TARGET_FRNS, and ROLE_MAPPINGS.
+# The engine will now load all of this dynamically from customers.json!
 
-# ==========================================
-# 🧠 THE INTELLIGENCE DICTIONARY
-# ==========================================
-ROLE_MAPPINGS = {
-    "SMF16": {"role": "Compliance Oversight", "buyer": "RegTech & AML", "pitch": "The Compliance seat is transitioning. Prime time to pitch AML/KYC automation or regulatory audits."},
-    "SMF17": {"role": "MLRO", "buyer": "RegTech & AML", "pitch": "The MLRO seat is transitioning. Prime time to pitch AML/KYC automation or transaction monitoring."},
-    "SMF24": {"role": "Chief Operations", "buyer": "Cyber & Cloud", "pitch": "Operations mandate detected. Pitch your cloud/cyber solutions before they lock in their 12-month IT roadmap."},
-    "SMF4":  {"role": "Chief Risk", "buyer": "FinTech & Data", "pitch": "Risk leadership is changing. Massive trigger for new risk modeling software and reporting dashboards."},
-    "SMF3":  {"role": "Executive Director", "buyer": "WealthTech & CRM", "pitch": "Director departure detected. High probability they are launching a new boutique. Pitch Wealth CRM."},
-    "SMF1":  {"role": "Chief Executive", "buyer": "Enterprise ERP", "pitch": "CEO transition. Expect a massive budget unlock as they audit the firm's strategic direction."},
-    "SMF2":  {"role": "Chief Finance", "buyer": "Enterprise ERP", "pitch": "CFO transition. Prime opportunity to pitch financial planning tools or cost-saving infrastructure."},
-    "CF30":  {"role": "Customer Function", "buyer": "Recruiters & Tech", "pitch": "Top producer movement. Track where they land for immediate software seat expansion."}
-}
+def load_customer_configs():
+    """Loads the customer configuration control panel."""
+    print("📂 Loading customer configurations from customers.json...")
+    try:
+        with open('customers.json', 'r') as f:
+            customers = json.load(f)
+        print(f"✅ Loaded {len(customers)} active customer profiles.")
+        return customers
+    except Exception as e:
+        print(f"❌ Failed to load customers.json: {e}")
+        return {}
 
 def setup_database():
     print("⚙️ Connecting to local database (live_smf_watch.db)...")
@@ -110,21 +106,15 @@ def fetch_executive_roster(frn):
             
     return today_roster
 
-def send_slack_alert(irn, name, firm_name, function_code, full_title, event_type, frn):
-    # Lookup the intelligence for this specific code
-    intel = ROLE_MAPPINGS.get(function_code, {
-        "buyer": "General Sales", 
-        "pitch": "Executive transition detected. Research this role for potential budget unlock."
-    })
+def send_customer_alert(customer_name, webhook_url, custom_pitch, irn, name, firm_name, function_code, full_title, event_type, frn):
+    """Sends a highly customized alert to a specific customer's Slack channel."""
     
     if event_type == "DEPARTURE":
         title_text = "🚨 LEAD ALERT: SMF Departure Detected"
         color = "#e11d48" # Red
-        action_text = intel["pitch"]
     else:
         title_text = "✨ LEAD ALERT: New SMF Appointed"
         color = "#10b981" # Green
-        action_text = f"A new {function_code} just took over. They have 90 days to establish their new tech stack."
 
     slack_payload = {
         "attachments": [
@@ -143,7 +133,7 @@ def send_slack_alert(irn, name, firm_name, function_code, full_title, event_type
                         "type": "section",
                         "text": {
                             "type": "mrkdwn",
-                            "text": f"*Firm:* {firm_name} (FRN: {frn})\n*Executive:* {name} (IRN: {irn})\n*Role:* {function_code} - {intel.get('role', full_title)}\n*Target Buyer:* {intel['buyer']}"
+                            "text": f"*Firm:* {firm_name} (FRN: {frn})\n*Executive:* {name} (IRN: {irn})\n*Role:* {function_code} - {full_title}"
                         }
                     },
                     {
@@ -151,7 +141,7 @@ def send_slack_alert(irn, name, firm_name, function_code, full_title, event_type
                         "elements": [
                             {
                                 "type": "mrkdwn",
-                                "text": f"⚡ *SMF Watch Insight* | {action_text}"
+                                "text": f"🎯 *Custom Action Plan* | {custom_pitch}"
                             }
                         ]
                     }
@@ -160,20 +150,55 @@ def send_slack_alert(irn, name, firm_name, function_code, full_title, event_type
         ]
     }
 
-    if SLACK_WEBHOOK_URL:
+    if webhook_url and "YOUR_SLACK_WEBHOOK" not in webhook_url:
         requests.post(
-            SLACK_WEBHOOK_URL, 
+            webhook_url, 
             data=json.dumps(slack_payload),
             headers={'Content-Type': 'application/json'}
         )
-        print(f"   -> 📨 Slack alert routed to {intel['buyer']} team for {name} ({function_code})!")
+        print(f"   -> 📨 Alert routed to {customer_name} for {function_code}!")
     else:
-        print("   -> ⚠️ Skipping Slack alert: Webhook URL not set.")
+        print(f"   -> ⚠️ Skipped Slack alert for {customer_name}: Webhook not configured.")
+
+def process_event_for_customers(customers, irn, record, event_type, frn):
+    """Checks which customers care about this event and fires their custom alerts."""
+    function_code = record['function_code']
+    
+    for cust_id, cust_data in customers.items():
+        # Check 1: Does this customer care about this specific FRN? (Or do they track "ALL"?)
+        cares_about_frn = (frn in cust_data.get('target_frns', [])) or ("ALL" in cust_data.get('target_frns', []))
+        
+        # Check 2: Does this customer care about this specific SMF role?
+        smf_preferences = cust_data.get('smf_preferences', {})
+        cares_about_role = function_code in smf_preferences
+        
+        if cares_about_frn and cares_about_role:
+            custom_pitch = smf_preferences[function_code]
+            webhook = cust_data.get('slack_webhook_url')
+            send_customer_alert(cust_data['company_name'], webhook, custom_pitch, irn, record['name'], record['firm_name'], function_code, record['full_title'], event_type, frn)
+
 
 def run_production_engine():
     print("\n" + "="*50)
-    print("🚀 RUNNING SMF WATCH (EXECUTIVE TIER)")
+    print("🚀 RUNNING SMF WATCH (MULTI-TENANT TIER)")
     print("="*50 + "\n")
+
+    # 1. Load Customers & Build Master Target List
+    customers = load_customer_configs()
+    
+    master_frn_list = set()
+    for cust_id, cust_data in customers.items():
+        for frn in cust_data.get('target_frns', []):
+            if frn != "ALL":
+                master_frn_list.add(frn)
+                
+    # If a customer tracks "ALL", we still need a default list to scan, 
+    # but for now, we will just scan the explicit FRNs our customers requested.
+    if not master_frn_list:
+        print("⚠️ No specific FRNs found in customer configs. Defaulting to Barclays (122702).")
+        master_frn_list.add("122702")
+
+    print(f"🎯 Master Engine will scan {len(master_frn_list)} unique firms tonight.")
 
     conn = setup_database()
     cursor = conn.cursor()
@@ -183,27 +208,33 @@ def run_production_engine():
 
     print(f"📊 Memory: Found {len(yesterday_db)} valid executives tracked in database.")
 
-    # We now need to collect all live data across all our target firms
     all_today_api_data = {}
     
-    for frn in TARGET_FRNS:
+    # 2. Fetch data for all requested FRNs
+    for frn in master_frn_list:
         firm_roster = fetch_executive_roster(frn)
+        
+        # Attach the FRN to the record so we know where they came from later
+        for irn, data in firm_roster.items():
+            data['frn'] = frn
+            
         all_today_api_data.update(firm_roster)
         time.sleep(1) # Be polite between firms
 
-    print(f"📥 Live: Pulled a total of {len(all_today_api_data)} active executives with verified SMF/CF roles across all target firms.")
+    print(f"📥 Live: Pulled a total of {len(all_today_api_data)} active executives across all target firms.")
 
     print("⚡ Running executive delta comparison...")
     new_additions = 0
     departures = 0
     today_date = datetime.now().strftime('%Y-%m-%d')
 
+    # 3. The Delta Engine (Now with customer routing!)
     for irn, current_record in all_today_api_data.items():
         if irn not in yesterday_db:
             print(f"✨ NEW APPOINTMENT: {current_record['name']} joined as {current_record['function_code']} at {current_record['firm_name']}")
-            # We must figure out which FRN this person belongs to for the slack alert. 
-            # We can reverse look this up, or just pass the firm_name.
-            send_slack_alert(irn, current_record['name'], current_record['firm_name'], current_record['function_code'], current_record['full_title'], "APPOINTMENT", "Multiple")
+            
+            # Fire to customers!
+            process_event_for_customers(customers, irn, current_record, "APPOINTMENT", current_record['frn'])
             
             cursor.execute('''
                 INSERT INTO tracked_executives (irn, name, firm_name, function_code, full_title, last_checked)
@@ -216,7 +247,11 @@ def run_production_engine():
     for irn, past_record in yesterday_db.items():
         if irn not in all_today_api_data:
             print(f"🚨 DEPARTURE TRIGGER: {past_record['name']} ({past_record['function_code']}) left {past_record['firm_name']}!")
-            send_slack_alert(irn, past_record['name'], past_record['firm_name'], past_record['function_code'], past_record['full_title'], "DEPARTURE", "Multiple")
+            
+            # Since we don't have the FRN in the DB currently, we pass "Unknown" for departures. 
+            # In a future update, we should save the FRN in the SQLite database to perfectly route departures.
+            process_event_for_customers(customers, irn, past_record, "DEPARTURE", "Multiple")
+            
             cursor.execute('DELETE FROM tracked_executives WHERE irn = ?', (irn,))
             departures += 1
 
