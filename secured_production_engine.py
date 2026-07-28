@@ -9,9 +9,6 @@ import os
 FCA_EMAIL = os.environ.get("FCA_EMAIL") or "dc@settlementcircle.com"
 FCA_KEY = os.environ.get("FCA_KEY") or "5828c39ebaed901e3695144dcc63e136"
 
-# REMOVED: We deleted the hardcoded SLACK_WEBHOOK_URL, TARGET_FRNS, and ROLE_MAPPINGS.
-# The engine will now load all of this dynamically from customers.json!
-
 def load_customer_configs():
     """Loads the customer configuration control panel."""
     print("📂 Loading customer configurations from customers.json...")
@@ -25,6 +22,7 @@ def load_customer_configs():
         return {}
 
 def setup_database():
+    """Creates our persistent tracking memory."""
     print("⚙️ Connecting to local database (live_smf_watch.db)...")
     conn = sqlite3.connect('live_smf_watch.db')
     cursor = conn.cursor()
@@ -150,15 +148,19 @@ def send_customer_alert(customer_name, webhook_url, custom_pitch, irn, name, fir
         ]
     }
 
-    if webhook_url and "YOUR_SLACK_WEBHOOK" not in webhook_url:
-        requests.post(
-            webhook_url, 
-            data=json.dumps(slack_payload),
-            headers={'Content-Type': 'application/json'}
-        )
-        print(f"   -> 📨 Alert routed to {customer_name} for {function_code}!")
+    # 🔥 THE FIX: Strictly check that the webhook is a real, valid URL
+    if webhook_url and webhook_url.startswith("http"):
+        try:
+            requests.post(
+                webhook_url, 
+                data=json.dumps(slack_payload),
+                headers={'Content-Type': 'application/json'}
+            )
+            print(f"   -> 📨 Alert routed to {customer_name} for {function_code}!")
+        except Exception as e:
+            print(f"   -> ❌ Failed to send alert to {customer_name}: {e}")
     else:
-        print(f"   -> ⚠️ Skipped Slack alert for {customer_name}: Webhook not configured.")
+        print(f"   -> ⚠️ Skipped Slack alert for {customer_name}: Webhook not configured properly.")
 
 def process_event_for_customers(customers, irn, record, event_type, frn):
     """Checks which customers care about this event and fires their custom alerts."""
@@ -177,8 +179,8 @@ def process_event_for_customers(customers, irn, record, event_type, frn):
             webhook = cust_data.get('slack_webhook_url')
             send_customer_alert(cust_data['company_name'], webhook, custom_pitch, irn, record['name'], record['firm_name'], function_code, record['full_title'], event_type, frn)
 
-
 def run_production_engine():
+    """The central brain that coordinates data fetching, delta comparison, and routing."""
     print("\n" + "="*50)
     print("🚀 RUNNING SMF WATCH (MULTI-TENANT TIER)")
     print("="*50 + "\n")
@@ -192,8 +194,6 @@ def run_production_engine():
             if frn != "ALL":
                 master_frn_list.add(frn)
                 
-    # If a customer tracks "ALL", we still need a default list to scan, 
-    # but for now, we will just scan the explicit FRNs our customers requested.
     if not master_frn_list:
         print("⚠️ No specific FRNs found in customer configs. Defaulting to Barclays (122702).")
         master_frn_list.add("122702")
@@ -228,7 +228,7 @@ def run_production_engine():
     departures = 0
     today_date = datetime.now().strftime('%Y-%m-%d')
 
-    # 3. The Delta Engine (Now with customer routing!)
+    # 3. The Delta Engine
     for irn, current_record in all_today_api_data.items():
         if irn not in yesterday_db:
             print(f"✨ NEW APPOINTMENT: {current_record['name']} joined as {current_record['function_code']} at {current_record['firm_name']}")
@@ -248,8 +248,6 @@ def run_production_engine():
         if irn not in all_today_api_data:
             print(f"🚨 DEPARTURE TRIGGER: {past_record['name']} ({past_record['function_code']}) left {past_record['firm_name']}!")
             
-            # Since we don't have the FRN in the DB currently, we pass "Unknown" for departures. 
-            # In a future update, we should save the FRN in the SQLite database to perfectly route departures.
             process_event_for_customers(customers, irn, past_record, "DEPARTURE", "Multiple")
             
             cursor.execute('DELETE FROM tracked_executives WHERE irn = ?', (irn,))
