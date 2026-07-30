@@ -21,6 +21,62 @@ def load_customer_configs():
         print(f"❌ Failed to load customers.json: {e}")
         return {}
 
+def save_customer_configs(customers):
+    """Saves updated trial countdowns back to the JSON file."""
+    try:
+        with open('customers.json', 'w') as f:
+            json.dump(customers, f, indent=4)
+    except Exception as e:
+        print(f"❌ Failed to save customers.json: {e}")
+
+def send_upsell_alert(customer_name, webhook_url):
+    """Sends an automatic upgrade prompt when a trial expires."""
+    slack_payload = {
+        "attachments": [
+            {
+                "color": "#f59e0b", # Amber/Orange
+                "blocks": [
+                    {
+                        "type": "header",
+                        "text": {
+                            "type": "plain_text",
+                            "text": "⏳ Your SMF Watch Trial Has Expired!",
+                            "emoji": True
+                        }
+                    },
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": f"Hi {customer_name}! Your 2-Day free trial is now complete. To keep receiving live FCA alerts tomorrow morning, please activate your subscription."
+                        }
+                    },
+                    {
+                        "type": "actions",
+                        "elements": [
+                            {
+                                "type": "button",
+                                "text": {
+                                    "type": "plain_text",
+                                    "text": "Upgrade to Pro (£199/mo)"
+                                },
+                                "style": "primary",
+                                "url": "https://buy.stripe.com/4gM8wRaV41toeTY2NMfw400" 
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+    
+    if webhook_url and webhook_url.startswith("http"):
+        try:
+            requests.post(webhook_url, data=json.dumps(slack_payload), headers={'Content-Type': 'application/json'})
+            print(f"   -> 💸 Upsell alert successfully sent to {customer_name}!")
+        except Exception as e:
+            pass
+
 def setup_database():
     """Creates our persistent tracking memory."""
     print("⚙️ Connecting to local database (live_smf_watch.db)...")
@@ -186,16 +242,25 @@ def run_production_engine():
     print("="*50 + "\n")
 
     # 1. Load Customers & Build Master Target List
-    customers = load_customer_configs()
+    all_customers = load_customer_configs()
     
+    active_customers = {}
+    for cust_id, cust_data in all_customers.items():
+        if cust_data.get('account_status') == 'active_paid':
+            active_customers[cust_id] = cust_data
+        elif cust_data.get('account_status') == 'trial' and cust_data.get('trial_runs_remaining', 0) > 0:
+            active_customers[cust_id] = cust_data
+        else:
+            print(f"⚠️ Skipping {cust_data.get('company_name')} - Trial expired or inactive.")
+            
     master_frn_list = set()
-    for cust_id, cust_data in customers.items():
+    for cust_id, cust_data in active_customers.items():
         for frn in cust_data.get('target_frns', []):
             if frn != "ALL":
                 master_frn_list.add(frn)
                 
     if not master_frn_list:
-        print("⚠️ No specific FRNs found in customer configs. Defaulting to Barclays (122702).")
+        print("⚠️ No specific FRNs found in active customer configs. Defaulting to Barclays (122702).")
         master_frn_list.add("122702")
 
     print(f"🎯 Master Engine will scan {len(master_frn_list)} unique firms tonight.")
@@ -234,7 +299,7 @@ def run_production_engine():
             print(f"✨ NEW APPOINTMENT: {current_record['name']} joined as {current_record['function_code']} at {current_record['firm_name']}")
             
             # Fire to customers!
-            process_event_for_customers(customers, irn, current_record, "APPOINTMENT", current_record['frn'])
+            process_event_for_customers(active_customers, irn, current_record, "APPOINTMENT", current_record['frn'])
             
             cursor.execute('''
                 INSERT INTO tracked_executives (irn, name, firm_name, function_code, full_title, last_checked)
@@ -248,13 +313,25 @@ def run_production_engine():
         if irn not in all_today_api_data:
             print(f"🚨 DEPARTURE TRIGGER: {past_record['name']} ({past_record['function_code']}) left {past_record['firm_name']}!")
             
-            process_event_for_customers(customers, irn, past_record, "DEPARTURE", "Multiple")
+            process_event_for_customers(active_customers, irn, past_record, "DEPARTURE", "Multiple")
             
             cursor.execute('DELETE FROM tracked_executives WHERE irn = ?', (irn,))
             departures += 1
 
     conn.commit()
     conn.close()
+
+    # 4. Handle Trial Countdowns and Saves
+    print("\n⏳ Processing trial countdowns...")
+    for cust_id, cust_data in all_customers.items():
+        if cust_data.get('account_status') == 'trial' and cust_data.get('trial_runs_remaining', 0) > 0:
+            cust_data['trial_runs_remaining'] -= 1
+            if cust_data['trial_runs_remaining'] == 0:
+                print(f"🔒 Trial expired for {cust_data['company_name']}. Sending upgrade link.")
+                send_upsell_alert(cust_data['company_name'], cust_data.get('slack_webhook_url'))
+                
+    save_customer_configs(all_customers)
+    print("✅ Customer configurations saved.")
 
     print("\n" + "="*50)
     print("✅ ENGINE RUN COMPLETE")
