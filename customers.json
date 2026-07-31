@@ -28,7 +28,7 @@
 "email": "dc@settlementcircle.com",
 "account_status": "trial",
 "trial_runs_remaining": 2,
-"slack_webhook_url": "https://hooks.slack.com/services/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",
+"slack_webhook_url": "https://hooks.slack.com/services/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",
 "target_frns": ["ALL"],
 "smf_preferences": {
 "ALL": "🚨 Universal Tracker: Market movement detected. Check pipeline."
