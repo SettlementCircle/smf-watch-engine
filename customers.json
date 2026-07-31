@@ -16,7 +16,7 @@
 "email": "sales@regtechpro.com",
 "account_status": "active_paid",
 "trial_runs_remaining": 0,
-"slack_webhook_url": "ANOTHER_SLACK_WEBHOOK_URL_HERE",
+"slack_webhook_url": "https://hooks.slack.com/services/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",
 "target_frns": ["ALL"],
 "smf_preferences": {
 "SMF16": "✨ Compliance Oversight shift. Trigger automated sequence pitching AML software.",
