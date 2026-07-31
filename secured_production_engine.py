@@ -226,12 +226,13 @@ def process_event_for_customers(customers, irn, record, event_type, frn):
         # Check 1: Does this customer care about this specific FRN? (Or do they track "ALL"?)
         cares_about_frn = (frn in cust_data.get('target_frns', [])) or ("ALL" in cust_data.get('target_frns', []))
         
-        # Check 2: Does this customer care about this specific SMF role?
+        # Check 2: Does this customer care about this specific SMF role? (Now supports "ALL")
         smf_preferences = cust_data.get('smf_preferences', {})
-        cares_about_role = function_code in smf_preferences
+        cares_about_role = (function_code in smf_preferences) or ("ALL" in smf_preferences)
         
         if cares_about_frn and cares_about_role:
-            custom_pitch = smf_preferences[function_code]
+            # If they have a specific pitch for the role, use it. Otherwise, use the generic "ALL" pitch.
+            custom_pitch = smf_preferences.get(function_code, smf_preferences.get("ALL", "🚨 Universal Tracker: Executive change detected."))
             webhook = cust_data.get('slack_webhook_url')
             send_customer_alert(cust_data['company_name'], webhook, custom_pitch, irn, record['name'], record['firm_name'], function_code, record['full_title'], event_type, frn)
 
